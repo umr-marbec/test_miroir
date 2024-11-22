@@ -23,7 +23,7 @@ jobs:
 
       - name: Add Forge remote
         run: |
-          git remote add forge https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/umr-marbec/test_miroir.git
+          git remote add forge https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
   
       - name: Push to Forge
         run: |
