@@ -1,0 +1,30 @@
+name: GitHub to GitLab Mirror
+
+on:
+  push:
+    branches:
+      - main  # Vous pouvez adapter cette ligne selon la branche que vous souhaitez surveiller.
+  pull_request:
+    branches:
+      - main  # Optionnel : si vous voulez que cela se déclenche aussi lors d'un PR vers la branche main.
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out GitHub repository
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Add GitLab remote
+        run: |
+          git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@forge.ird.fr/MathieuDepetris/https://forge.ird.fr/marbec/test_miroir_github.git
+
+      - name: Push to GitLab
+        run: |
+          git push --mirror gitlab
