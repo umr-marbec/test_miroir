@@ -27,4 +27,4 @@ jobs:
   
       - name: Push to Forge
         run: |
-          git push --mirror forg
+          git push --mirror forge
