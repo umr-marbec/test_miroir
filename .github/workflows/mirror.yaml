@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup GitLab credentials
+      - name: Setup forge.ird.fr credentials
         run: git config --global url.https://${{ secrets.GITLAB_PAT }}@forge.ird.fr/.insteadOf https://forge.ird.fr/
       - name: Clone Repository
         run: |
