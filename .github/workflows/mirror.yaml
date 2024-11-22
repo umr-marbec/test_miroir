@@ -14,5 +14,5 @@ jobs:
       - name: Mirror Repository
         run: |
           git clone --bare https://github.com/umr-marbec/test_miroir
-          cd OLD-REPOSITORY
+          cd test_miroir
           git push --mirror https://forge.ird.fr/marbec/test_miroir_github
