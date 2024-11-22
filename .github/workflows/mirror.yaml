@@ -11,8 +11,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Mirror Repository
+      - name: Clone Repository
         run: |
-          git clone --bare https://github.com/umr-marbec/test_miroir
-          cd test_miroir
-          git push --mirror https://forge.ird.fr/marbec/test_miroir_github
+          git clone --bare https://github.com/umr-marbec/test_miroir.git old-repo
+      - name: Push to Mirror
+        run: |
+          cd old-repo
+          git push --mirror https://forge.ird.fr/marbec/test_miroir_github.git
