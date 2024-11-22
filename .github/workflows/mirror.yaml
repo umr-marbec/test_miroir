@@ -15,8 +15,8 @@ jobs:
         run: git config --global url.https://${{ secrets.GITLAB_PAT }}@gitlab.com/.insteadOf https://gitlab.com/
       - name: Clone Repository
         run: |
-          git clone --bare https://github.com/umr-marbec/test_miroir.git old-repo
+          git clone --bare https://github.com/umr-marbec/test_miroir old-repo
       - name: Push to GitLab
         run: |
           cd old-repo
-          git push --mirror https://forge.ird.fr/marbec/test_miroir_github.git
+          git push --mirror https://forge.ird.fr/marbec/test_miroir_github
