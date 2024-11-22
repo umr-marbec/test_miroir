@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup GitLab credentials
-        run: git config --global url.https://${{ secrets.GITLAB_PAT }}@gitlab.com/.insteadOf https://gitlab.com/
+        run: git config --global url.https://${{ secrets.GITLAB_PAT }}@forge.ird.fr/.insteadOf https://forge.ird.fr/
       - name: Clone Repository
         run: |
           git clone --bare https://github.com/umr-marbec/test_miroir old-repo
