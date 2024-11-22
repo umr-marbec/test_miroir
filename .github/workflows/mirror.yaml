@@ -10,11 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
+      - name: Setup GitLab credentials
+        run: git config --global url.https://${{ secrets.GITLAB_PAT }}@gitlab.com/.insteadOf https://gitlab.com/
       - name: Clone Repository
         run: |
           git clone --bare https://github.com/umr-marbec/test_miroir.git old-repo
-      - name: Push to Mirror
+      - name: Push to GitLab
         run: |
           cd old-repo
           git push --mirror https://forge.ird.fr/marbec/test_miroir_github.git
