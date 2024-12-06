@@ -14,6 +14,12 @@ on:
       - '**'  # Déclenche sur la suppression de n'importe quelle branche
     tags:
       - '**'  # Déclenche lors de la suppression de tous les tags
+  release:
+    types:
+      - created  # Déclenche lors de la création d'une release
+      - published  # Déclenche lors de la publication d'une release
+      - updated  # Déclenche lors de la mise à jour d'une release
+      - deleted  # Déclenche lors de la suppression d'une release
 
 jobs:
   mirror:
