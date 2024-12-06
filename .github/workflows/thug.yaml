@@ -55,12 +55,12 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@users.noreply.github.com"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Utilisation du token GitHub
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Utilisation du token GitHub
 
       - name: Fetch latest release from GitHub
         id: fetch_release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Assurez-vous que ce token a les bonnes permissions
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Assurez-vous que ce token a les bonnes permissions
         run: |
           # Récupérer les informations de la dernière release
           RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
@@ -82,7 +82,7 @@ jobs:
 
       - name: Download release assets from GitHub
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           # Télécharger les assets de la release
           ASSETS=$(curl -s \
@@ -118,4 +118,3 @@ jobs:
           git add .
           git commit -m "Add release assets"
           git push -u origin release-assets --force
-          
