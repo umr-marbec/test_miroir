@@ -84,7 +84,40 @@ jobs:
 
       - name: Download release assets
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Récupérer les assets de la release
+          RESPONSE=$(curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets")
+          
+          # Afficher la réponse de l'API pour débogage
+          echo "API Response for Assets: $RESPONSE"
+          
+          # Extraire les URLs des assets
+          ASSETS=$(echo "$RESPONSE" | jq -r '.[].browser_download_url')
+          
+          # Afficher les URLs des assets détectés
+          echo "Assets URLs detected:"
+          echo "$ASSETS"
+
+          # Vérifier si des assets ont été trouvés
+          if [ -z "$ASSETS" ]; then
+            echo "No assets found for this release."
+            exit 0
+          fi
+
+          # Télécharger les assets
+          mkdir release-assets
+          cd release-assets
+          for URL in $ASSETS; do
+            echo "Downloading $URL"
+            curl -L -o "$(basename $URL)" -H "Authorization: token $GITHUB_TOKEN" "$URL"
+          done
+
+      - name: Download release assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ASSETS=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
