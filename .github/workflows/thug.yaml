@@ -59,7 +59,7 @@ jobs:
       - name: Fetch the latest release
         id: fetch_release
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Assurez-vous d'utiliser le bon token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Assurez-vous d'utiliser le bon token
         run: |
           # Récupérer les informations de la dernière release
           RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
