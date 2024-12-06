@@ -65,9 +65,6 @@ jobs:
           echo "API Response: $RESPONSE"
           echo "$RESPONSE" | jq
       
-      - name: Debug RELEASE_ID
-        run: echo "Release ID: $RELEASE_ID"
-        
       - name: Fetch the latest release
         id: fetch_release
         env:
