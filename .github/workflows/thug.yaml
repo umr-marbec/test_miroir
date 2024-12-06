@@ -4,12 +4,16 @@ on:
   push:   # Déclenche sur n'importe quel push sur n'importe quelle branche
     branches:
       - '**'  # Toutes les branches
+    tags:
+      - '**'  # Déclenche pour tous les pushs de tags
   pull_request:   # Déclenche aussi sur toute Pull Request
     branches:
       - '**'  # Toutes les branches
   delete:
     branches:
       - '**'  # Déclenche sur la suppression de n'importe quelle branche
+    tags:
+      - '**'  # Déclenche lors de la suppression de tous les tags
 
 jobs:
   mirror:
