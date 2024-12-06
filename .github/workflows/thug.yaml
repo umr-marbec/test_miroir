@@ -89,29 +89,36 @@ jobs:
 
           # Vérifier si des assets sont trouvés
           if [ -z "$ASSETS" ]; then
-            echo "No assets found for this release."
-            exit 0
+            echo "No assets found for this release. Skipping download step."
+            echo "assets_found=false" >> $GITHUB_ENV
+          else
+            # Créer un répertoire pour les assets
+            mkdir release-assets
+            cd release-assets
+
+            # Télécharger les fichiers des assets
+            for URL in $ASSETS; do
+              echo "Downloading $URL"
+              curl -L -o "$(basename $URL)" -H "Authorization: token $GITHUB_TOKEN" "$URL"
+            done
+            echo "assets_found=true" >> $GITHUB_ENV
           fi
 
-          # Créer un répertoire pour les assets
-          mkdir release-assets
-          cd release-assets
-
-          # Télécharger les fichiers des assets
-          for URL in $ASSETS; do
-            echo "Downloading $URL"
-            curl -L -o "$(basename $URL)" -H "Authorization: token $GITHUB_TOKEN" "$URL"
-          done
-
       - name: Push assets to Git repository
+        if: env.assets_found == 'true'  # Cette étape s'exécute seulement si des assets ont été trouvés
         run: |
-          # Initialiser un dépôt Git et ajouter le dépôt distant cible
-          cd release-assets
-          git init
-          git remote add origin https://<git-username>:${{ secrets.GIT_PASSWORD }}@<git-server-url>/<repo-name>.git
-          git checkout -b release-assets
+          # Cloner le dépôt cible (ou le mettre à jour si déjà cloné)
+          git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
+          cd test_miroir_github 
 
-          # Ajouter les assets et pousser dans le dépôt Git
+          # Créer un répertoire pour les assets s'il n'existe pas
+          mkdir -p release-assets
+          cd release-assets
+
+          # Copier les assets téléchargés dans ce répertoire
+          cp -r ../release-assets/* .  # Copier les assets du répertoire local 'release-assets' vers le dépôt
+
+          # Ajouter, committer et pousser les changements
           git add .
-          git commit -m "Add release assets"
-          git push -u origin release-assets --force
+          git commit -m "Update release assets"
+          git push origin release-assets
