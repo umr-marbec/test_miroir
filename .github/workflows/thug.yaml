@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clone repository
+      - name: Clone repository as bare
         run: |
-          git clone https://github.com/umr-marbec/test_miroir.git
-          cd test_miroir
+          git clone --bare https://github.com/umr-marbec/test_miroir.git test_miroir.git
+          cd test_miroir.git 
 
       - name: Set up Git
         run: |
@@ -25,8 +25,8 @@ jobs:
 
       - name: Add Forge remote
         run: |
-          git remote add forge https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
+          git remote add mirror https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
   
       - name: Push to Forge
         run: |
-          git push --mirror forge
+          git push --mirror mirror
