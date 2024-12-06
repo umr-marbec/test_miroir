@@ -55,30 +55,32 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@users.noreply.github.com"
           git config --global init.defaultBranch main  # Définit la branche initiale à 'main'
-
-      - name: Debug API response (Assets)
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Utilisez le PAT si nécessaire
-        run: |
-          RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets")
-          echo "Release ID: $RELEASE_ID"
-          echo "API Response: $RESPONSE"
-          echo "$RESPONSE" | jq
       
       - name: Fetch the latest release
         id: fetch_release
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Utilisez le PAT ici
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Assurez-vous d'utiliser le bon token
         run: |
-          RELEASE=$(curl -s -w "%{http_code}" -H "Authorization: token $GITHUB_TOKEN" \
-          "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets")
-          echo "Response Code: $RESPONSE"
-          if [ "${RESPONSE}" -ge 400 ]; then
-            echo "Error fetching release assets. HTTP status code: $RESPONSE"
+          # Récupérer les informations de la dernière release
+          RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/umr-marbec/test_miroir/releases/latest")
+          
+          # Vérifier la réponse pour s'assurer qu'elle est correcte
+          echo "API Response: $RESPONSE"
+          
+          # Extraire l'ID de la release
+          RELEASE_ID=$(echo "$RESPONSE" | jq -r '.id')
+          
+          # Vérifier si RELEASE_ID a bien été extrait
+          echo "Release ID: $RELEASE_ID"
+          
+          # Si RELEASE_ID est vide, échouer explicitement pour déboguer
+          if [ -z "$RELEASE_ID" ]; then
+            echo "Release ID is empty. Exiting."
             exit 1
           fi
-          echo "$RESPONSE" | jq
+    
+          echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV  # Passer l'ID de release comme variable d'environnement
 
       - name: Download release assets
         env:
