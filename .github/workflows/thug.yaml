@@ -13,9 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clone repository as bare
+      - name: Clone repository
         run: |
-          git clone --bare https://github.com/umr-marbec/test_miroir
+          git clone https://github.com/umr-marbec/test_miroir.git
+          cd test_miroir
 
       - name: Set up Git
         run: |
