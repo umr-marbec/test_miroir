@@ -55,7 +55,16 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@users.noreply.github.com"
           git config --global init.defaultBranch main  # Définit la branche initiale à 'main'
-      
+
+      - name: Debug API response (Assets)
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Utilisez le PAT si nécessaire
+        run: |
+          RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets")
+          echo "API Response: $RESPONSE"
+          echo "$RESPONSE" | jq
+        
       - name: Fetch the latest release
         id: fetch_release
         env:
