@@ -59,11 +59,9 @@ jobs:
 
       - name: Fetch latest release from GitHub
         id: fetch_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Assurez-vous que ce token a les bonnes permissions
         run: |
           # Récupérer les informations de la dernière release
-          RESPONSE=$(curl -s -H "Authorization: token $PAT_TOKEN" \
+          RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
             "https://api.github.com/repos/umr-marbec/test_miroir/releases/latest")
           
           # Extraire l'ID de la release
@@ -81,12 +79,10 @@ jobs:
           echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV  # Passer l'ID de release comme variable d'environnement
 
       - name: Download release assets from GitHub
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           # Télécharger les assets de la release
           ASSETS=$(curl -s \
-            -H "Authorization: token $PAT_TOKEN" \
+            -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
             "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets" \
             | jq -r '.[].browser_download_url')
 
