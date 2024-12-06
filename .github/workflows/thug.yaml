@@ -13,8 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out GitHub repository
-        uses: actions/checkout@v4
+      - name: Clone repository as bare
+        run: |
+          git clone --bare https://github.com/utilisateur/mon-depot.git
 
       - name: Set up Git
         run: |
