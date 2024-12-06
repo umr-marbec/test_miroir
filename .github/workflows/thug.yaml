@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Clone repository as bare
         run: |
-          git clone --bare https://github.com/umr-marbec/test_miroir.git test_miroir.git
+          git clone --bare https://github.com/MathieuDepetris/umr-marbec/test_miroir.git test_miroir.git
           cd test_miroir.git 
 
       - name: Set up Git
@@ -25,7 +25,7 @@ jobs:
 
       - name: Add Forge remote
         run: |
-          git remote add mirror https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
+          git remote add mirror https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/MathieuDepetris/marbec/test_miroir_github.git
   
       - name: Push to Forge
         run: |
