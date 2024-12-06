@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Clone repository as bare
         run: |
-          git clone --bare https://github.com/utilisateur/mon-depot.git
+          git clone --bare https://github.com/umr-marbec/test_miroir
 
       - name: Set up Git
         run: |
