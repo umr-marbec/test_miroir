@@ -93,7 +93,15 @@ jobs:
             echo "Downloading $URL"
             curl -L -o "$(basename $URL)" -H "Authorization: token $GITHUB_TOKEN" "$URL"
           done
-          
+
+      - name: Check release assets via API
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets" | jq
+
       - name: Verify assets exist
         run: |
           if [ -z "$(ls -A release-assets)" ]; then
