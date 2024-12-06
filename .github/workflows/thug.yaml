@@ -84,7 +84,7 @@ jobs:
 
       - name: Download release assets
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           # Récupérer les assets de la release
           RESPONSE=$(curl -s \
