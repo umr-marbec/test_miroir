@@ -59,7 +59,7 @@ jobs:
       - name: Fetch the latest release
         id: fetch_release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Assurez-vous d'utiliser le bon token
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Assurez-vous d'utiliser le bon token
         run: |
           # Récupérer les informations de la dernière release
           RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
@@ -115,13 +115,6 @@ jobs:
             echo "Downloading $URL"
             curl -L -o "$(basename $URL)" -H "Authorization: token $GITHUB_TOKEN" "$URL"
           done
-
-      - name: Verify assets exist
-        run: |
-          if [ -z "$(ls -A release-assets)" ]; then
-            echo "No files downloaded. Exiting."
-            exit 0
-          fi
 
       - name: Upload release assets to forge
         run: |
