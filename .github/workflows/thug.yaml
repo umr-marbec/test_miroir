@@ -63,7 +63,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Assurez-vous que ce token a les bonnes permissions
         run: |
           # Récupérer les informations de la dernière release
-          RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          RESPONSE=$(curl -s -H "Authorization: token $PAT_TOKEN" \
             "https://api.github.com/repos/umr-marbec/test_miroir/releases/latest")
           
           # Extraire l'ID de la release
@@ -86,7 +86,7 @@ jobs:
         run: |
           # Télécharger les assets de la release
           ASSETS=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Authorization: token $PAT_TOKEN" \
             "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets" \
             | jq -r '.[].browser_download_url')
 
