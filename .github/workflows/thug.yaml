@@ -115,31 +115,6 @@ jobs:
             curl -L -o "$(basename $URL)" -H "Authorization: token $GITHUB_TOKEN" "$URL"
           done
 
-      - name: Download release assets
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ASSETS=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets" \
-            | jq -r '.[].browser_download_url')
-
-          echo "Assets URLs detected:"
-          echo "$ASSETS"
-
-          mkdir release-assets
-          cd release-assets
-
-          if [ -z "$ASSETS" ]; then
-            echo "No assets found for this release."
-            exit 0
-          fi
-
-          for URL in $ASSETS; do
-            echo "Downloading $URL"
-            curl -L -o "$(basename $URL)" -H "Authorization: token $GITHUB_TOKEN" "$URL"
-          done
-
       - name: Verify assets exist
         run: |
           if [ -z "$(ls -A release-assets)" ]; then
