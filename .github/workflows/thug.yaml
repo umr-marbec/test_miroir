@@ -65,6 +65,8 @@ jobs:
             -H "Authorization: token $GITHUB_TOKEN" \
             "https://api.github.com/repos/umr-marbec/test_miroir/releases/latest")
           echo "$RELEASE" > release.json
+          echo "Release JSON:"
+          cat release.json
           echo "RELEASE_ID=$(jq -r '.id' release.json)" >> $GITHUB_ENV
 
       - name: Download release assets
@@ -75,6 +77,9 @@ jobs:
             -H "Authorization: token $GITHUB_TOKEN" \
             "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets" \
             | jq -r '.[].browser_download_url')
+
+          echo "Assets URLs detected:"
+          echo "$ASSETS"
 
           mkdir release-assets
           cd release-assets
@@ -88,7 +93,7 @@ jobs:
             echo "Downloading $URL"
             curl -L -o "$(basename $URL)" -H "Authorization: token $GITHUB_TOKEN" "$URL"
           done
-
+          
       - name: Verify assets exist
         run: |
           if [ -z "$(ls -A release-assets)" ]; then
