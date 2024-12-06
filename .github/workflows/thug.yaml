@@ -56,12 +56,12 @@ jobs:
           git config --global user.email "github-actions@users.noreply.github.com"
           git config --global init.defaultBranch main  # Définit la branche initiale à 'main'
       
-      - name: Check release assets via API (Debug)
+      - name: Fetch the latest release
+        id: fetch_release
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }} # Utilisez le PAT ici si nécessaire
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Utilisez le PAT ici
         run: |
-          echo "Fetching release assets from GitHub API..."
-          RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: token $GITHUB_TOKEN" \
+          RELEASE=$(curl -s -w "%{http_code}" -H "Authorization: token $GITHUB_TOKEN" \
             "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets")
           echo "Response Code: $RESPONSE"
           if [ "${RESPONSE}" -ge 400 ]; then
@@ -69,19 +69,6 @@ jobs:
             exit 1
           fi
           echo "$RESPONSE" | jq
-
-      - name: Fetch the latest release
-        id: fetch_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GB_TOKEN }}
-        run: |
-          RELEASE=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/umr-marbec/test_miroir/releases/latest")
-          echo "$RELEASE" > release.json
-          echo "Release JSON:"
-          cat release.json
-          echo "RELEASE_ID=$(jq -r '.id' release.json)" >> $GITHUB_ENV
 
       - name: Download release assets
         env:
