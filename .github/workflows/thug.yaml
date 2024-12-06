@@ -86,6 +86,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
+          echo "RELEASE_ID=$RELEASE_ID"
           # Récupérer les assets de la release
           RESPONSE=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
