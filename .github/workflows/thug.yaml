@@ -61,9 +61,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Utilisez le PAT si nécessaire
         run: |
           RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets")
+          "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets")
           echo "API Response: $RESPONSE"
           echo "$RESPONSE" | jq
+      
+      - name: Debug RELEASE_ID
+        run: echo "Release ID: $RELEASE_ID"
         
       - name: Fetch the latest release
         id: fetch_release
@@ -71,7 +74,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Utilisez le PAT ici
         run: |
           RELEASE=$(curl -s -w "%{http_code}" -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets")
+          "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets")
           echo "Response Code: $RESPONSE"
           if [ "${RESPONSE}" -ge 400 ]; then
             echo "Error fetching release assets. HTTP status code: $RESPONSE"
