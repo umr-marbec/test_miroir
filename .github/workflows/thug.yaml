@@ -79,6 +79,7 @@ jobs:
 
           # Extraire le nom de la release
           RELEASE_NAME=$(echo "$RESPONSE" | jq -r '.name')
+          echo "Release name: $RELEASE_NAME"
 
           echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV  # Passer l'ID de release comme variable d'environnement
           echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV  # Passer le nom de release comme variable d'environnement
