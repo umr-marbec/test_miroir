@@ -45,7 +45,7 @@ jobs:
           cd mon-depot-github.git
           git push --mirror mirror
 
-  download-release-assets:
+download-release-assets:
     runs-on: ubuntu-latest
     needs: mirror # Attendre que le job "mirror" se termine
 
@@ -65,24 +65,18 @@ jobs:
           # Afficher la réponse complète de l'API pour debug
           echo "API Response: $RESPONSE"
           
-          # Extraire l'ID de la release
+          # Extraire l'ID et le nom de la release
           RELEASE_ID=$(echo "$RESPONSE" | jq -r '.id')
+          RELEASE_NAME=$(echo "$RESPONSE" | jq -r '.name' | tr ' ' '_')
 
-          # Vérifier si RELEASE_ID a bien été extrait
-          echo "Release ID: $RELEASE_ID"
-          
-          # Si RELEASE_ID est vide, échouer explicitement pour déboguer
-          if [ -z "$RELEASE_ID" ]; then
-            echo "Release ID is empty. Exiting."
+          # Vérifier si les informations sont extraites correctement
+          if [ -z "$RELEASE_ID" ] || [ -z "$RELEASE_NAME" ]; then
+            echo "Failed to extract release information. Exiting."
             exit 1
           fi
 
-          # Extraire le nom de la release
-          RELEASE_NAME=$(echo "$RESPONSE" | jq -r '.name')
-          echo "Release name: $RELEASE_NAME"
-
-          echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV  # Passer l'ID de release comme variable d'environnement
-          echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV  # Passer le nom de release comme variable d'environnement
+          echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV
+          echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
 
       - name: Download release assets from GitHub
         run: |
@@ -92,20 +86,19 @@ jobs:
             "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets" \
             | jq -r '.[].browser_download_url')
 
-          # Vérifier si des assets sont trouvés
           if [ -z "$ASSETS" ]; then
             echo "No assets found for this release. Skipping download step."
             echo "assets_found=false" >> $GITHUB_ENV
           else
-            # Créer un répertoire pour les assets
+            # Créer un répertoire sécurisé pour les assets
             mkdir -p "release-assets/${RELEASE_NAME}"
             cd "release-assets/${RELEASE_NAME}"
 
-            # Télécharger les fichiers des assets
             for URL in $ASSETS; do
               echo "Downloading $URL"
               curl -L -o "$(basename "$URL")" -H "Authorization: token $GITHUB_TOKEN" "$URL"
             done
+
             echo "assets_found=true" >> $GITHUB_ENV
           fi
 
@@ -116,19 +109,17 @@ jobs:
           git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
           cd test_miroir_github
 
-          # Créer un répertoire pour les assets associés au nom de la release
-          mkdir -p release-assets/${{ env.RELEASE_NAME }}
+          # Créer ou mettre à jour le répertoire pour les assets
+          mkdir -p "release-assets/${{ env.RELEASE_NAME }}"
 
-          # Copier les assets téléchargés dans ce répertoire sans supprimer les anciens
-          cp -n ../release-assets/${{ env.RELEASE_NAME }}/* release-assets/${{ env.RELEASE_NAME }}/
+          # Copier les assets téléchargés dans le répertoire, sans écraser les fichiers existants
+          cp -r -n ../release-assets/"${{ env.RELEASE_NAME }}"/* "release-assets/${{ env.RELEASE_NAME }}/"
 
-          # Ajouter, committer et pousser les changements
-          git add release-assets/${{ env.RELEASE_NAME }}/*
-          git commit -m "Add assets for release: ${{ env.RELEASE_NAME }}"
-
-          # Vérifier si la branche 'main' existe et y basculer, sinon la créer
-          git fetch origin
-          git checkout main || git checkout -b main
-
-          # Pousser les changements sur la branche 'main'
-          git push origin main
+          # Ajouter et committer les changements uniquement si des fichiers ont été ajoutés
+          git add "release-assets/${{ env.RELEASE_NAME }}"/* || true
+          if git diff-index --quiet HEAD; then
+            echo "No changes to commit."
+          else
+            git commit -m "Add assets for release: ${{ env.RELEASE_NAME }}"
+            git push origin main
+          fi
