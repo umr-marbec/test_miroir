@@ -98,17 +98,17 @@ jobs:
             echo "assets_found=false" >> $GITHUB_ENV
           else
             # Créer un répertoire pour les assets
-            mkdir -p release-assets/${RELEASE_NAME}
-            cd release-assets/${RELEASE_NAME}
+            mkdir -p "release-assets/${RELEASE_NAME}"
+            cd "release-assets/${RELEASE_NAME}"
 
             # Télécharger les fichiers des assets
             for URL in $ASSETS; do
               echo "Downloading $URL"
-              curl -L -o "$(basename $URL)" -H "Authorization: token $GITHUB_TOKEN" "$URL"
+              curl -L -o "$(basename "$URL")" -H "Authorization: token $GITHUB_TOKEN" "$URL"
             done
             echo "assets_found=true" >> $GITHUB_ENV
           fi
-      
+
       - name: Push assets to mirror repository
         if: env.assets_found == 'true'
         run: |
