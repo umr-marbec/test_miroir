@@ -103,22 +103,27 @@ jobs:
             done
             echo "assets_found=true" >> $GITHUB_ENV
           fi
-
-      - name: Push assets to Git repository
-        if: env.assets_found == 'true'  # Cette étape s'exécute seulement si des assets ont été trouvés
+      
+      - name: Push assets to mirror repository
+        if: env.assets_found == 'true'
         run: |
-          # Cloner le dépôt cible (ou le mettre à jour si déjà cloné)
+          # Cloner le dépôt miroir
           git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
-          cd test_miroir_github 
+          cd test_miroir_github
 
           # Créer un répertoire pour les assets s'il n'existe pas
           mkdir -p release-assets
-          cd release-assets
 
           # Copier les assets téléchargés dans ce répertoire
-          cp -r ../release-assets/* .  # Copier les assets du répertoire local 'release-assets' vers le dépôt
+          cp -r ../release-assets/* release-assets/
 
           # Ajouter, committer et pousser les changements
-          git add .
+          git add release-assets/*
           git commit -m "Update release assets"
-          git push origin release-assets
+
+          # Vérifier si la branche 'main' existe et y basculer, sinon la créer
+          git fetch origin
+          git checkout main || git checkout -b main
+
+          # Pousser les changements sur la branche 'main'
+          git push origin main
