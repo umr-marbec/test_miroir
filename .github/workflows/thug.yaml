@@ -108,7 +108,7 @@ jobs:
             echo "assets_found=true" >> $GITHUB_ENV
           fi
       
-        - name: Push assets to mirror repository
+      - name: Push assets to mirror repository
         if: env.assets_found == 'true'
         run: |
           # Cloner le dépôt miroir
