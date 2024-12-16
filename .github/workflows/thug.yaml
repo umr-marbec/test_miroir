@@ -77,7 +77,11 @@ jobs:
             exit 1
           fi
 
+          # Extraire le nom de la release
+          RELEASE_NAME=$(echo "$RESPONSE" | jq -r '.name')
+
           echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV  # Passer l'ID de release comme variable d'environnement
+          echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV  # Passer le nom de release comme variable d'environnement
 
       - name: Download release assets from GitHub
         run: |
@@ -93,8 +97,8 @@ jobs:
             echo "assets_found=false" >> $GITHUB_ENV
           else
             # Créer un répertoire pour les assets
-            mkdir release-assets
-            cd release-assets
+            mkdir -p release-assets/${RELEASE_NAME}
+            cd release-assets/${RELEASE_NAME}
 
             # Télécharger les fichiers des assets
             for URL in $ASSETS; do
@@ -104,22 +108,22 @@ jobs:
             echo "assets_found=true" >> $GITHUB_ENV
           fi
       
-      - name: Push assets to mirror repository
+        - name: Push assets to mirror repository
         if: env.assets_found == 'true'
         run: |
           # Cloner le dépôt miroir
           git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
           cd test_miroir_github
 
-          # Créer un répertoire pour les assets s'il n'existe pas
-          mkdir -p release-assets
+          # Créer un répertoire pour les assets associés au nom de la release
+          mkdir -p release-assets/${{ env.RELEASE_NAME }}
 
-          # Copier les assets téléchargés dans ce répertoire
-          cp -r ../release-assets/* release-assets/
+          # Copier les assets téléchargés dans ce répertoire sans supprimer les anciens
+          cp -n ../release-assets/${{ env.RELEASE_NAME }}/* release-assets/${{ env.RELEASE_NAME }}/
 
           # Ajouter, committer et pousser les changements
-          git add release-assets/*
-          git commit -m "Update release assets"
+          git add release-assets/${{ env.RELEASE_NAME }}/*
+          git commit -m "Add assets for release: ${{ env.RELEASE_NAME }}"
 
           # Vérifier si la branche 'main' existe et y basculer, sinon la créer
           git fetch origin
