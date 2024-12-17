@@ -56,6 +56,7 @@ jobs:
             git config --global user.email "github-actions@users.noreply.github.com"
 
         - name: Fetch latest release from GitHub
+          id: fetch_releases
           run: |
             # Récupérer les informations de la dernière release
             RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
@@ -86,7 +87,8 @@ jobs:
             done
 
         - name: Download release assets from GitHub
-          if: success()
+          id: download_assets
+          if: steps.fetch_releases.outcome == "success"
           run: |
             ASSETS_FOUND=false
             # Boucle pour télécharger les assets de chaque release
@@ -126,7 +128,7 @@ jobs:
             fi     
 
         - name: Push assets to mirror repository
-          if: success()
+          if: steps.download_assets_outcome == "success"
           run: |
             # Cloner le dépôt miroir
             git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
