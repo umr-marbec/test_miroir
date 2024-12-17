@@ -63,7 +63,7 @@ jobs:
               "https://api.github.com/repos/umr-marbec/test_miroir/releases")
 
             # Afficher la réponse complète de l'API pour debug
-            echo "API Response: $RESPONSE"
+            #echo "API Response: $RESPONSE"
             
             # Extraire les IDs et les noms des releases
             # Extraire les IDs et les noms des releases
