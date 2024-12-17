@@ -97,10 +97,10 @@ jobs:
           run: |
             ASSETS_FOUND=false
             NUM_RELEASES=${{ env.NUM_RELEASES }}
+            RELEASE_ID_0=${{ env.NUM_RELEASES_0 }}
             # Boucle pour itérer sur chaque ID et nom de release
             for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
-              RELEASE_ID=${{ env.RELEASE_ID_$num_release }}
-              RELEASE_NAME=${{ env.RELEASE_NAME_$num_release }}
+
               echo "Processing release ID: $RELEASE_ID with Name: $RELEASE_NAME"
               # Télécharger les assets de la release
               ASSETS=$(curl -s \
