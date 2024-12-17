@@ -80,17 +80,25 @@ jobs:
             echo "Number of releases found: $NUM_RELEASES"
             echo "NUM_RELEASES=$NUM_RELEASES" >> $GITHUB_ENV
 
-            count=0
+            RELEASE_IDS=""
+            RELEASE_NAMES=""
             while IFS= read -r line; do
               RELEASE_ID=$(echo "$line" | awk '{print $1}')
-              echo "$RELEASE_ID"
               RELEASE_NAME=$(echo "$line" | awk '{print $2}')
-              echo "$RELEASE_NAME"
-              # Définir dynamiquement les variables
-              echo "RELEASE_ID_$count=$RELEASE_ID" >> $GITHUB_ENV
-              echo "RELEASE_NAME_$count=$RELEASE_NAME" >> $GITHUB_ENV
-              count=$((count + 1))
+              # Ajouter les valeurs à des variables séparées par des virgules
+              RELEASE_IDS="$RELEASE_IDS$RELEASE_ID,"
+              RELEASE_NAMES="$RELEASE_NAMES$RELEASE_NAME,"
             done <<< "$RELEASE_IDS_NAMES"
+
+            # Enlever la dernière virgule de chaque variable
+            RELEASE_IDS=${RELEASE_IDS%,}
+            RELEASE_NAMES=${RELEASE_NAMES%,}
+
+            echo "$RELEASE_IDS"
+            echo "$RELEASE_NAMES"
+
+            echo "RELEASE_IDS=$RELEASE_IDS" >> $GITHUB_ENV
+            echo "RELEASE_NAMES=$RELEASE_NAMES" >> $GITHUB_ENV
 
         - name: Download release assets from GitHub
           id: download_assets
