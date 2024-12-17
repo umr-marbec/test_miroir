@@ -55,7 +55,7 @@ jobs:
             git config --global user.name "GitHub Actions"
             git config --global user.email "github-actions@users.noreply.github.com"
 
-        - name: Fetch latest release from GitHub
+        - name: Fetch release(s) from GitHub
           id: fetch_releases
           run: |
             # Récupérer les informations de la dernière release
@@ -97,7 +97,7 @@ jobs:
             echo "RELEASE_IDS=$RELEASE_IDS" >> $GITHUB_ENV
             echo "RELEASE_NAMES=$RELEASE_NAMES" >> $GITHUB_ENV
 
-        - name: Download release assets from GitHub
+        - name: Download release(s) asset(s) from GitHub
           id: download_assets
           if: ${{ env.SKIP_NEXT_STEP != 'true' }}
           run: |
@@ -140,7 +140,7 @@ jobs:
               exit 0
             fi
 
-        - name: Push assets to mirror repository
+        - name: Push asset(s) to mirror repository
           id: push_mirror
           if: ${{ env.SKIP_NEXT_STEP != 'true' }}
           run: |
