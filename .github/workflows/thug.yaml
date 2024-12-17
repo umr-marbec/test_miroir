@@ -72,6 +72,7 @@ jobs:
             # Vérifier si les informations sont extraites correctement
             if [ -z "$RELEASE_ID" ] || [ -z "$RELEASE_NAME" ]; then
               echo "No release found. No action required."
+              echo "SKIP_NEXT_STEP=true" >> $GITHUB_ENV
               exit 0
             fi
 
@@ -86,10 +87,9 @@ jobs:
               count=$((count + 1))
             done
 
-            continue-on-error: false
-
         - name: Download release assets from GitHub
           id: download_assets
+          if: ${{ env.SKIP_NEXT_STEP != 'true' }}
           run: |
             ASSETS_FOUND=false
             # Boucle pour télécharger les assets de chaque release
@@ -125,13 +125,13 @@ jobs:
             done
             if [ "$ASSETS_FOUND" = false ]; then
               echo "No assets found for any release. Exiting."
+              echo "SKIP_NEXT_STEP=true" >> $GITHUB_ENV
               exit 0
             fi
 
-            continue-on-error: false
-
         - name: Push assets to mirror repository
           id: push_mirror
+          if: ${{ env.SKIP_NEXT_STEP != 'true' }}
           run: |
             # Cloner le dépôt miroir
             git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
