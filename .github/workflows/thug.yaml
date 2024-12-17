@@ -81,6 +81,13 @@ jobs:
 
             echo "$RELEASE_IDS_NAMES"
 
+            while IFS= read -r line; do
+              echo "Line: $line"  # Affiche chaque ligne avant traitement
+              RELEASE_ID=$(echo "$line" | awk '{print $1}')
+              RELEASE_NAME=$(echo "$line" | awk '{print $2}')
+              echo "Processing release ID: $RELEASE_ID with Name: $RELEASE_NAME"
+            done <<< "$RELEASE_IDS_NAMES"
+
         - name: Download release assets from GitHub
           id: download_assets
           if: ${{ env.SKIP_NEXT_STEP != 'true' }}
