@@ -18,7 +18,7 @@ on:
     types:
       - created  # Déclenche lors de la création d'une release
       - published  # Déclenche lors de la publication d'une release
-      - updated  # Déclenche lors de la mise à jour d'une release
+      - edited  # Lorsqu'une release est modifiée
       - deleted  # Déclenche lors de la suppression d'une release
 
 jobs:
