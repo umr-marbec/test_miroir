@@ -128,7 +128,7 @@ jobs:
             fi     
 
         - name: Push assets to mirror repository
-          if: steps.download_assets_outcome == 'success'
+          if: steps.download_assets.outcome == 'success'
           run: |
             # Cloner le dépôt miroir
             git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
