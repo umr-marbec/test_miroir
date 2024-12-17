@@ -79,6 +79,9 @@ jobs:
             NUM_RELEASES=$(echo "$RELEASE_IDS" | wc -l)
             echo "Number of releases found: $NUM_RELEASES"
 
+            echo "$RELEASE_IDS"
+            echo "$RELEASE_NAMES"
+
         - name: Download release assets from GitHub
           id: download_assets
           if: ${{ env.SKIP_NEXT_STEP != 'true' }}
