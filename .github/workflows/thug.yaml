@@ -60,81 +60,93 @@ jobs:
           run: |
             # Récupérer les informations de la dernière release
             RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
-              "https://api.github.com/repos/umr-marbec/test_miroir/releases/latest")
+              "https://api.github.com/repos/umr-marbec/test_miroir/releases")
 
             # Afficher la réponse complète de l'API pour debug
             echo "API Response: $RESPONSE"
             
-            # Extraire l'ID et le nom de la release
-            RELEASE_ID=$(echo "$RESPONSE" | jq -r '.id')
-            RELEASE_NAME=$(echo "$RESPONSE" | jq -r '.name' | tr ' ' '_')
+            # Extraire les IDs et les noms des releases
+            RELEASE_IDS=$(echo "$RESPONSE" | jq -r '.[].id')
+            RELEASE_NAMES=$(echo "$RESPONSE" | jq -r '.[].name' | tr ' ' '_')
 
             # Vérifier si les informations sont extraites correctement
             if [ -z "$RELEASE_ID" ] || [ -z "$RELEASE_NAME" ]; then
-              echo "Failed to extract release information. Exiting."
-              exit 1
+              echo "No release found. No action required."
+              exit 0
             fi
 
-            echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV
-            echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
+            # Boucle pour enregistrer chaque release dans des variables d'environnement
+            NUM_RELEASES=$(echo "$RELEASE_IDS" | wc -l)
+            echo "Number of releases found: $NUM_RELEASES"
+            count=0
+            for id in $RELEASE_IDS; do
+              name=$(echo "$RELEASE_NAMES" | sed -n "$((count + 1))p")
+              echo "RELEASE_ID_$count=$id" >> $GITHUB_ENV
+              echo "RELEASE_NAME_$count=$name" >> $GITHUB_ENV
+              count=$((count + 1))
+            done
 
-        - name: Download release assets from GitHub
+          - name: Download release assets from GitHub
           run: |
-            # Télécharger les assets de la release
-            ASSETS=$(curl -s \
-              -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
-              "https://api.github.com/repos/umr-marbec/test_miroir/releases/${RELEASE_ID}/assets" \
-              | jq -r '.[].browser_download_url')
-
-            if [ -z "$ASSETS" ]; then
-              echo "No assets found for this release. Skipping download step."
-              echo "assets_found=false" >> $GITHUB_ENV
-            else
-              # Créer un répertoire sécurisé pour les assets
-              mkdir -p "release-assets/${RELEASE_ID}_${RELEASE_NAME}"
-              cd "release-assets/${RELEASE_ID}_${RELEASE_NAME}"
-
-              for URL in $ASSETS; do
-                echo "Downloading $URL"
-                curl -L -o "$(basename "$URL")" -H "Authorization: token $GITHUB_TOKEN" "$URL"
-              done
-
-              echo "assets_found=true" >> $GITHUB_ENV
-            fi
+            ASSETS_FOUND=false
+            # Boucle pour télécharger les assets de chaque release
+            for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
+              # Récupérer l'ID et le nom de la release
+              RELEASE_ID_VAR="RELEASE_ID_$num_release"
+              RELEASE_NAME_VAR="RELEASE_NAME_$num_release"
+              RELEASE_ID=${!RELEASE_ID_VAR}
+              RELEASE_NAME=${!RELEASE_NAME_VAR}
+        
+              # Télécharger les assets de la release
+              ASSETS=$(curl -s \
+                -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
+                "https://api.github.com/repos/umr-marbec/test_miroir/releases/$RELEASE_ID/assets" \
+                | jq -r '.[].browser_download_url')
+        
+              if [ -z "$ASSETS" ]; then
+                echo "No assets found for release $RELEASE_ID ($RELEASE_NAME). Skipping download step."
+                continue
+              else
+                ASSETS_FOUND=true
+                # Créer un répertoire pour les assets de la release
+                mkdir -p "release-assets/$RELEASE_ID"_"$RELEASE_NAME"
+                cd "release-assets/$RELEASE_ID"_"$RELEASE_NAME"
+        
+                for URL in $ASSETS; do
+                  echo "Downloading $URL"
+                  curl -L -o "$(basename "$URL")" -H "Authorization: token ${{ secrets.PAT_TOKEN }}" "$URL"
+                done
+        
+                cd -
+              fi
+            done
+            if [ "$ASSETS_FOUND" = false ]; then
+              echo "No assets found for any release. Exiting."
+              exit 0
+            fi     
 
         - name: Push assets to mirror repository
-          if: env.assets_found == 'true'
           run: |
             # Cloner le dépôt miroir
             git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
             cd test_miroir_github
 
-            # Définir les répertoires source et cible
-            SOURCE_DIR="../release-assets/${{ env.RELEASE_ID }}_${{ env.RELEASE_NAME }}"
-            TARGET_BASE_DIR="release-assets"
-            TARGET_DIR="${TARGET_BASE_DIR}/${{ env.RELEASE_ID }}_${{ env.RELEASE_NAME }}"
-
-            # Vérifier si le répertoire source existe
-            if [ -d "$SOURCE_DIR" ]; then
-              # Créer un sous-répertoire pour la release spécifique
-              mkdir -p "$TARGET_DIR"
-
-              # Copier les fichiers de la release dans son sous-répertoire dédié
-              echo "Copying assets for release ID: ${{ env.RELEASE_ID }}, Name: ${{ env.RELEASE_NAME }}"
-              cp -r "$SOURCE_DIR"/* "$TARGET_DIR/"
-
-              # Ajouter les fichiers dans Git sans toucher aux autres releases
-              git add "$TARGET_BASE_DIR"
-
-              # Vérifier s'il y a des modifications
-              if git diff --cached --quiet; then
-                echo "No changes to commit for this release."
-              else
-                git commit -m "Add assets for release: ${{ env.RELEASE_NAME }} (ID: ${{ env.RELEASE_ID }})"
-                git push origin main
-                echo "Assets committed and pushed successfully."
-              fi
-            else
-              echo "Error: Source directory '$SOURCE_DIR' does not exist."
-              exit 1
+            # Supprimer le répertoire release-assets du miroir s'il existe
+            if [ -d "release-assets" ]; then
+              echo "Removing existing release-assets directory from the mirror repository."
+              rm -rf release-assets
             fi
+
+            # Copier le répertoire local des assets téléchargés dans le miroir
+            echo "Copying local release-assets directory to the mirror repository."
+            cp -r "../release-assets" .
+
+            # Ajouter les fichiers et les commits
+            git add .
+            git commit -m "Add release assets from GitHub releases"
+
+            # Récupérer le nom de la branche principale
+            BRANCH_NAME=$(git symbolic-ref --short HEAD)
+
+            # Pousser les changements sur la branche principale
+            git push origin "$BRANCH_NAME"
