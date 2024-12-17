@@ -95,8 +95,8 @@ jobs:
             # Boucle pour télécharger les assets de chaque release
             for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
               # Récupérer l'ID et le nom de la release
-              RELEASE_ID=${{ env.RELEASE_ID_$i }}
-              RELEASE_NAME=${{ env.RELEASE_NAME_$i }}
+              RELEASE_ID=${{ env.RELEASE_ID_$num_release }}
+              RELEASE_NAME=${{ env.RELEASE_NAME_$num_release }}
         
               # Télécharger les assets de la release
               ASSETS=$(curl -s \
