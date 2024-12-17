@@ -86,13 +86,9 @@ jobs:
               echo "$RELEASE_ID"
               RELEASE_NAME=$(echo "$line" | awk '{print $2}')
               echo "$RELEASE_NAME"
-              
               # Définir dynamiquement les variables
-              declare RELEASE_ID_$count="$RELEASE_ID"
-              echo "RELEASE_ID_$count=${!RELEASE_ID_$count}" >> $GITHUB_ENV
-              #declare RELEASE_NAME_$count="$RELEASE_NAME"
-              #echo "RELEASE_NAME_$count=${!RELEASE_NAME_$count}" >> $GITHUB_ENV              
-              
+              echo "RELEASE_ID_$count=$RELEASE_ID" >> $GITHUB_ENV
+              echo "RELEASE_NAME_$count=$RELEASE_NAME" >> $GITHUB_ENV
               count=$((count + 1))
             done <<< "$RELEASE_IDS_NAMES"
 
