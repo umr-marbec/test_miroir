@@ -105,11 +105,12 @@ jobs:
             NUM_RELEASES=${{ env.NUM_RELEASES }}
             RELEASE_IDS=${{ env.RELEASE_IDS }}
             RELEASE_NAMES=${{ env.RELEASE_NAMES }}
-            echo "$RELEASE_IDS"
-            echo "$RELEASE_NAMES"
+            IFS=',' read -ra RELEASE_IDS_ARRAY <<< "$RELEASE_IDS"
+            IFS=',' read -ra RELEASE_NAMES_ARRAY <<< "$RELEASE_NAMES"
             # Boucle pour itérer sur chaque ID et nom de release
             for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
-
+              RELEASE_ID="${RELEASE_IDS_ARRAY[$num_release]}"
+              RELEASE_NAME="${RELEASE_NAMES_ARRAY[$num_release]}"
               echo "Processing release ID: $RELEASE_ID with Name: $RELEASE_NAME"
               # Télécharger les assets de la release
               ASSETS=$(curl -s \
