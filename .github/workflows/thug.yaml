@@ -98,9 +98,6 @@ jobs:
             # Boucle pour télécharger les assets de chaque release
             for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
               # Récupérer l'ID et le nom de la release depuis les variables d'environnement
-              RELEASE_ID=$(eval echo \${{ env.RELEASE_ID_$num_release }})
-              RELEASE_NAME=$(eval echo \${{ env.RELEASE_NAME_$num_release }})
-              echo "Processing release: $RELEASE_NAME ($RELEASE_ID)"
         
               # Télécharger les assets de la release
               ASSETS=$(curl -s \
