@@ -98,6 +98,8 @@ jobs:
             ASSETS_FOUND=false
             NUM_RELEASES=${{ env.NUM_RELEASES }}
             RELEASE_ID_0=${{ env.NUM_RELEASES_0 }}
+            echo "$NUM_RELEASES"
+            echo "$RELEASE_ID_0"
             # Boucle pour itérer sur chaque ID et nom de release
             for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
 
