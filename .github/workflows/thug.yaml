@@ -86,9 +86,10 @@ jobs:
               count=$((count + 1))
             done
 
+            continue-on-error: false
+
         - name: Download release assets from GitHub
           id: download_assets
-          if: steps.fetch_releases.outcome == 'success'
           run: |
             ASSETS_FOUND=false
             # Boucle pour télécharger les assets de chaque release
@@ -125,10 +126,12 @@ jobs:
             if [ "$ASSETS_FOUND" = false ]; then
               echo "No assets found for any release. Exiting."
               exit 0
-            fi     
+            fi
+
+            continue-on-error: false
 
         - name: Push assets to mirror repository
-          if: steps.download_assets.outcome == 'success'
+          id: push_mirror
           run: |
             # Cloner le dépôt miroir
             git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
