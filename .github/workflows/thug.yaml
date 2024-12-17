@@ -87,8 +87,8 @@ jobs:
               count=$((count + 1))
             done
 
-            echo $RELEASE_ID_0
-            echo $RELEASE_NAME_0
+            echo "$RELEASE_ID_0"
+            echo "$RELEASE_NAME_0"
 
         - name: Download release assets from GitHub
           id: download_assets
