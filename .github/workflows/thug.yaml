@@ -86,6 +86,7 @@ jobs:
             done
 
         - name: Download release assets from GitHub
+          if: success()
           run: |
             ASSETS_FOUND=false
             # Boucle pour télécharger les assets de chaque release
@@ -125,6 +126,7 @@ jobs:
             fi     
 
         - name: Push assets to mirror repository
+          if: success()
           run: |
             # Cloner le dépôt miroir
             git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
