@@ -87,8 +87,7 @@ jobs:
               count=$((count + 1))
             done
 
-            echo "${{ env.RELEASE_ID_0 }}"
-            echo "${{ env.RELEASE_NAME_0 }}"
+            echo "$RELEASE_IDS"
 
         - name: Download release assets from GitHub
           id: download_assets
