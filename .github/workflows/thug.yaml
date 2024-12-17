@@ -81,12 +81,13 @@ jobs:
             echo "NUM_RELEASES=$NUM_RELEASES" >> $GITHUB_ENV
 
             echo "$RELEASE_IDS_NAMES"
-            echo "RELEASE_IDS_NAMES=$RELEASE_IDS_NAMES" >> $GITHUB_ENV
 
             count=0
             while IFS= read -r line; do
               RELEASE_ID=$(echo "$line" | awk '{print $1}')
+              echo "$RELEASE_ID"
               RELEASE_NAME=$(echo "$line" | awk '{print $2}')
+              echo "RELEASE_NAME"
               echo "RELEASE_ID_$count=$RELEASE_ID" >> $GITHUB_ENV
               echo "RELEASE_NAME_$count=$RELEASE_NAME" >> $GITHUB_ENV
               count=$((count + 1))
