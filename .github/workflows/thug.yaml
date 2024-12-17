@@ -94,7 +94,9 @@ jobs:
           run: |
             ASSETS_FOUND=false
             # Boucle pour itérer sur chaque ID et nom de release
-            while IFS=" " read -r RELEASE_ID RELEASE_NAME; do
+            while IFS= read -r line; do
+              RELEASE_ID=$(echo "$line" | awk '{print $1}')
+              RELEASE_NAME=$(echo "$line" | awk '{print $2}')
               echo "Processing release ID: $RELEASE_ID with Name: $RELEASE_NAME"
               # Télécharger les assets de la release
               ASSETS=$(curl -s \
