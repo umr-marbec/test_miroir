@@ -95,6 +95,7 @@ jobs:
             ASSETS_FOUND=false
             # Boucle pour itérer sur chaque ID et nom de release
             while IFS= read -r line; do
+              echo "Line: $line"  # Affiche chaque ligne avant traitement
               RELEASE_ID=$(echo "$line" | awk '{print $1}')
               RELEASE_NAME=$(echo "$line" | awk '{print $2}')
               echo "Processing release ID: $RELEASE_ID with Name: $RELEASE_NAME"
