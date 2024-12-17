@@ -94,9 +94,6 @@ jobs:
             RELEASE_IDS=${RELEASE_IDS%,}
             RELEASE_NAMES=${RELEASE_NAMES%,}
 
-            echo "$RELEASE_IDS"
-            echo "$RELEASE_NAMES"
-
             echo "RELEASE_IDS=$RELEASE_IDS" >> $GITHUB_ENV
             echo "RELEASE_NAMES=$RELEASE_NAMES" >> $GITHUB_ENV
 
@@ -104,12 +101,12 @@ jobs:
           id: download_assets
           if: ${{ env.SKIP_NEXT_STEP != 'true' }}
           run: |
-            env
             ASSETS_FOUND=false
             NUM_RELEASES=${{ env.NUM_RELEASES }}
-            RELEASE_ID_0=${{ env.NUM_RELEASES_0 }}
-            echo "$NUM_RELEASES"
-            echo "$RELEASE_ID_0"
+            RELEASE_IDS=${{ env.RELEASE_IDS }}
+            RELEASE_NAMES=${{ env.RELEASE_NAMES }}
+            echo "$RELEASE_IDS"
+            echo "$RELEASE_NAMES"
             # Boucle pour itérer sur chaque ID et nom de release
             for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
 
