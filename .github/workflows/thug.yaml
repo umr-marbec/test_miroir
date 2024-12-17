@@ -91,8 +91,8 @@ jobs:
               echo "assets_found=false" >> $GITHUB_ENV
             else
               # Créer un répertoire sécurisé pour les assets
-              mkdir -p "release-assets/${RELEASE_NAME}"
-              cd "release-assets/${RELEASE_NAME}"
+              mkdir -p "release-assets/${RELEASE_ID}_${RELEASE_NAME}"
+              cd "release-assets/${RELEASE_ID}_${RELEASE_NAME}"
 
               for URL in $ASSETS; do
                 echo "Downloading $URL"
@@ -110,16 +110,20 @@ jobs:
             cd test_miroir_github
 
             # Créer ou mettre à jour le répertoire pour les assets
-            mkdir -p "release-assets/${{ env.RELEASE_NAME }}"
+            TARGET_DIR="release-assets/${{ env.RELEASE_ID }}_${{ env.RELEASE_NAME }}"
+            mkdir -p "$TARGET_DIR"
+
+            # Fusionner les fichiers : copier et remplacer les doublons sans supprimer les fichiers existants
+            rsync -av --ignore-existing ../release-assets/"${{ env.RELEASE_ID }}_${{ env.RELEASE_NAME }}/" "$TARGET_DIR/"
 
             # Copier les assets téléchargés dans le répertoire, sans écraser les fichiers existants
             cp -r -n ../release-assets/"${{ env.RELEASE_NAME }}"/* "release-assets/${{ env.RELEASE_NAME }}/"
 
-            # Ajouter et committer les changements uniquement si des fichiers ont été ajoutés
-            git add "release-assets/${{ env.RELEASE_NAME }}"/* || true
-            if git diff-index --quiet HEAD; then
+            # Ajouter et committer les changements uniquement si des fichiers ont été ajoutés ou modifiés
+            git add "$TARGET_DIR"/*
+            if git diff --cached --quiet; then
               echo "No changes to commit."
             else
-              git commit -m "Add assets for release: ${{ env.RELEASE_NAME }}"
+              git commit -m "Update assets for release: ${{ env.RELEASE_NAME }} (ID: ${{ env.RELEASE_ID }})"
               git push origin main
             fi
