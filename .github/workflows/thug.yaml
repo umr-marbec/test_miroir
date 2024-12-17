@@ -91,8 +91,7 @@ jobs:
             for num_release in $(seq 1 $NUM_RELEASES); do
               echo "$num_release"
               # Récupérer l'ID et le nom de la release
-              RELEASE_ID=$(echo "$RELEASE_IDS" | awk "NR==$num_release")
-              RELEASE_NAME==$(echo "$RELEASE_NAMES" | awk "NR==$num_release")
+              RELEASE_ID=$(echo "$RELEASE_IDS" | sed -n "${num_release}p")
               echo "Work on release id: $RELEASE_ID"
         
               # Télécharger les assets de la release
