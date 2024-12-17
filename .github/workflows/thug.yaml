@@ -56,7 +56,6 @@ jobs:
             git config --global user.email "github-actions@users.noreply.github.com"
 
         - name: Fetch latest release from GitHub
-          id: fetch_release
           run: |
             # Récupérer les informations de la dernière release
             RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
@@ -87,43 +86,43 @@ jobs:
             done
 
         - name: Download release assets from GitHub
-        run: |
-          ASSETS_FOUND=false
-          # Boucle pour télécharger les assets de chaque release
-          for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
-            # Récupérer l'ID et le nom de la release
-            RELEASE_ID_VAR="RELEASE_ID_$num_release"
-            RELEASE_NAME_VAR="RELEASE_NAME_$num_release"
-            RELEASE_ID=${!RELEASE_ID_VAR}
-            RELEASE_NAME=${!RELEASE_NAME_VAR}
-      
-            # Télécharger les assets de la release
-            ASSETS=$(curl -s \
-              -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
-              "https://api.github.com/repos/umr-marbec/test_miroir/releases/$RELEASE_ID/assets" \
-              | jq -r '.[].browser_download_url')
-      
-            if [ -z "$ASSETS" ]; then
-              echo "No assets found for release $RELEASE_ID ($RELEASE_NAME). Skipping download step."
-              continue
-            else
-              ASSETS_FOUND=true
-              # Créer un répertoire pour les assets de la release
-              mkdir -p "release-assets/$RELEASE_ID"_"$RELEASE_NAME"
-              cd "release-assets/$RELEASE_ID"_"$RELEASE_NAME"
-      
-              for URL in $ASSETS; do
-                echo "Downloading $URL"
-                curl -L -o "$(basename "$URL")" -H "Authorization: token ${{ secrets.PAT_TOKEN }}" "$URL"
-              done
-      
-              cd -
-            fi
-          done
-          if [ "$ASSETS_FOUND" = false ]; then
-            echo "No assets found for any release. Exiting."
-            exit 0
-          fi     
+          run: |
+            ASSETS_FOUND=false
+            # Boucle pour télécharger les assets de chaque release
+            for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
+              # Récupérer l'ID et le nom de la release
+              RELEASE_ID_VAR="RELEASE_ID_$num_release"
+              RELEASE_NAME_VAR="RELEASE_NAME_$num_release"
+              RELEASE_ID=${!RELEASE_ID_VAR}
+              RELEASE_NAME=${!RELEASE_NAME_VAR}
+        
+              # Télécharger les assets de la release
+              ASSETS=$(curl -s \
+                -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
+                "https://api.github.com/repos/umr-marbec/test_miroir/releases/$RELEASE_ID/assets" \
+                | jq -r '.[].browser_download_url')
+        
+              if [ -z "$ASSETS" ]; then
+                echo "No assets found for release $RELEASE_ID ($RELEASE_NAME). Skipping download step."
+                continue
+              else
+                ASSETS_FOUND=true
+                # Créer un répertoire pour les assets de la release
+                mkdir -p "release-assets/$RELEASE_ID"_"$RELEASE_NAME"
+                cd "release-assets/$RELEASE_ID"_"$RELEASE_NAME"
+        
+                for URL in $ASSETS; do
+                  echo "Downloading $URL"
+                  curl -L -o "$(basename "$URL")" -H "Authorization: token ${{ secrets.PAT_TOKEN }}" "$URL"
+                done
+        
+                cd -
+              fi
+            done
+            if [ "$ASSETS_FOUND" = false ]; then
+              echo "No assets found for any release. Exiting."
+              exit 0
+            fi     
 
         - name: Push assets to mirror repository
           run: |
