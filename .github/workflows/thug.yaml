@@ -70,7 +70,7 @@ jobs:
             RELEASE_NAMES=$(echo "$RESPONSE" | jq -r '.[].name' | tr ' ' '_')
 
             # Vérifier si les informations sont extraites correctement
-            if [ -z "$RELEASE_ID" ] || [ -z "$RELEASE_NAME" ]; then
+            if [ -z "$RELEASE_IDS" ] || [ -z "$RELEASE_NAMES" ]; then
               echo "No release found. No action required."
               echo "SKIP_NEXT_STEP=true" >> $GITHUB_ENV
               exit 0
