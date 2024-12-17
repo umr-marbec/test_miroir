@@ -66,8 +66,6 @@ jobs:
             echo "API Response: $RESPONSE"
             
             # Extraire les IDs et les noms des releases
-            #RELEASE_IDS=$(echo "$RESPONSE" | jq -r '.[].id')
-            #RELEASE_NAMES=$(echo "$RESPONSE" | jq -r '.[].name' | tr ' ' '_')
             # Extraire les IDs et les noms des releases
             RELEASE_IDS_NAMES=$(echo "$RESPONSE" | jq -r '.[] | "\(.id) \(.name)"')
 
@@ -89,7 +87,7 @@ jobs:
           run: |
             ASSETS_FOUND=false
             # Boucle pour itérer sur chaque ID et nom de release
-            while read -r RELEASE_ID RELEASE_NAME; do
+            while IFS=" " read -r RELEASE_ID RELEASE_NAME; do
               echo "Processing release ID: $RELEASE_ID with Name: $RELEASE_NAME"
               # Télécharger les assets de la release
               ASSETS=$(curl -s \
