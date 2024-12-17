@@ -76,18 +76,8 @@ jobs:
               exit 0
             fi
 
-            # Boucle pour enregistrer chaque release dans des variables d'environnement
             NUM_RELEASES=$(echo "$RELEASE_IDS" | wc -l)
             echo "Number of releases found: $NUM_RELEASES"
-            count=0
-            for id in $RELEASE_IDS; do
-              name=$(echo "$RELEASE_NAMES" | sed -n "$((count + 1))p")
-              echo "RELEASE_ID_$count=$id" >> $GITHUB_ENV
-              echo "RELEASE_NAME_$count=$name" >> $GITHUB_ENV
-              count=$((count + 1))
-            done
-
-            echo "$RELEASE_IDS"
 
         - name: Download release assets from GitHub
           id: download_assets
@@ -95,8 +85,10 @@ jobs:
           run: |
             ASSETS_FOUND=false
             # Boucle pour télécharger les assets de chaque release
-            for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
-              # Récupérer l'ID et le nom de la release depuis les variables d'environnement
+            for num_release in $(seq 1 $NUM_RELEASES); do
+              # Récupérer l'ID et le nom de la release
+              RELEASE_ID=$(echo "$RELEASE_IDS" | sed -n "${num_release}p")
+              RELEASE_NAME=$(echo "$RELEASE_NAMES" | sed -n "${num_release}p")
         
               # Télécharger les assets de la release
               ASSETS=$(curl -s \
