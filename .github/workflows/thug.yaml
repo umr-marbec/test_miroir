@@ -81,18 +81,15 @@ jobs:
 
             echo "$RELEASE_IDS_NAMES"
 
-            while IFS= read -r line; do
-              echo "Line: $line"  # Affiche chaque ligne avant traitement
-              RELEASE_ID=$(echo "$line" | awk '{print $1}')
-              RELEASE_NAME=$(echo "$line" | awk '{print $2}')
-              echo "Processing release ID: $RELEASE_ID with Name: $RELEASE_NAME"
-            done <<< "$RELEASE_IDS_NAMES"
+            echo "RELEASE_IDS_NAMES=$RELEASE_IDS_NAMES" >> $GITHUB_ENV
 
         - name: Download release assets from GitHub
           id: download_assets
           if: ${{ env.SKIP_NEXT_STEP != 'true' }}
           run: |
             ASSETS_FOUND=false
+            # Récupérer RELEASE_IDS_NAMES depuis l'environnement global
+            RELEASE_IDS_NAMES="${{ env.RELEASE_IDS_NAMES }}"
             # Boucle pour itérer sur chaque ID et nom de release
             while IFS= read -r line; do
               echo "Line: $line"  # Affiche chaque ligne avant traitement
