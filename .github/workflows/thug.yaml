@@ -78,23 +78,29 @@ jobs:
 
             NUM_RELEASES=$(echo "$RELEASE_IDS_NAMES" | wc -l)
             echo "Number of releases found: $NUM_RELEASES"
+            echo "NUM_RELEASES=$NUM_RELEASES" >> $GITHUB_ENV
 
             echo "$RELEASE_IDS_NAMES"
 
-            echo "RELEASE_IDS_NAMES=$RELEASE_IDS_NAMES" >> $GITHUB_ENV
+            count=0
+            while IFS= read -r line; do
+              RELEASE_ID=$(echo "$line" | awk '{print $1}')
+              RELEASE_NAME=$(echo "$line" | awk '{print $2}')
+              echo "RELEASE_ID_$count=$RELEASE_ID" >> $GITHUB_ENV
+              echo "RELEASE_NAME_$count=$RELEASE_NAME" >> $GITHUB_ENV
+              count=$((count + 1))
+            done <<< "$RELEASE_IDS_NAMES"
 
         - name: Download release assets from GitHub
           id: download_assets
           if: ${{ env.SKIP_NEXT_STEP != 'true' }}
           run: |
             ASSETS_FOUND=false
-            # Récupérer RELEASE_IDS_NAMES depuis l'environnement global
-            RELEASE_IDS_NAMES="${{ env.RELEASE_IDS_NAMES }}"
+            NUM_RELEASES=${{ env.NUM_RELEASES }}
             # Boucle pour itérer sur chaque ID et nom de release
-            while IFS= read -r line; do
-              echo "Line: $line"  # Affiche chaque ligne avant traitement
-              RELEASE_ID=$(echo "$line" | awk '{print $1}')
-              RELEASE_NAME=$(echo "$line" | awk '{print $2}')
+            for num_release in $(seq 0 $((NUM_RELEASES - 1))); do
+              RELEASE_ID=${{ env.RELEASE_ID_$num_release }}
+              RELEASE_NAME=${{ env.RELEASE_NAME_$num_release }}
               echo "Processing release ID: $RELEASE_ID with Name: $RELEASE_NAME"
               # Télécharger les assets de la release
               ASSETS=$(curl -s \
@@ -117,7 +123,7 @@ jobs:
         
                 cd -
               fi
-            done <<< "$RELEASE_IDS_NAMES"
+            done
             if [ "$ASSETS_FOUND" = false ]; then
               echo "No assets found for any release. Exiting."
               echo "SKIP_NEXT_STEP=true" >> $GITHUB_ENV
