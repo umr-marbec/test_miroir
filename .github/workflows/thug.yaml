@@ -109,26 +109,24 @@ jobs:
             git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
             cd test_miroir_github
 
-            # Définir les répertoires source et cible
+            # Définir les répertoires source et cible avec l'ID et le nom de la release
             SOURCE_DIR="../release-assets/${{ env.RELEASE_ID }}_${{ env.RELEASE_NAME }}"
             TARGET_DIR="release-assets/${{ env.RELEASE_ID }}_${{ env.RELEASE_NAME }}"
 
-            # Créer ou mettre à jour le répertoire pour les assets
-            TARGET_DIR="release-assets/${{ env.RELEASE_ID }}_${{ env.RELEASE_NAME }}"
-            mkdir -p "$TARGET_DIR"
-
             # Vérifier si le répertoire source existe
             if [ -d "$SOURCE_DIR" ]; then
-              # Créer le répertoire cible s'il n'existe pas encore
+              # Créer le répertoire cible spécifique pour cette release
               mkdir -p "$TARGET_DIR"
-              # Fusionner les fichiers en remplaçant les doublons
+
+              # Fusionner les fichiers dans le répertoire spécifique sans toucher aux anciens
               rsync -av "$SOURCE_DIR/" "$TARGET_DIR/"
+
               # Ajouter et committer les changements uniquement si des fichiers ont été ajoutés ou modifiés
-              git add "$TARGET_DIR"/*
+              git add "$TARGET_DIR"
               if git diff --cached --quiet; then
                 echo "No changes to commit."
               else
-                git commit -m "Update assets for release: ${{ env.RELEASE_NAME }} (ID: ${{ env.RELEASE_ID }})"
+                git commit -m "Add/update assets for release: ${{ env.RELEASE_NAME }} (ID: ${{ env.RELEASE_ID }})"
                 git push origin main
               fi
             else
