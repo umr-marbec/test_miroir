@@ -80,24 +80,13 @@ jobs:
             echo "Number of releases found: $NUM_RELEASES"
             echo "NUM_RELEASES=$NUM_RELEASES" >> $GITHUB_ENV
 
-            echo "$RELEASE_IDS_NAMES"
-
             count=0
             while IFS= read -r line; do
               RELEASE_ID=$(echo "$line" | awk '{print $1}')
               echo "$RELEASE_ID"
               RELEASE_NAME=$(echo "$line" | awk '{print $2}')
               echo "$RELEASE_NAME"
-              
-              # Définir dynamiquement les variables
-              declare RELEASE_ID_$count="$RELEASE_ID"
-              declare RELEASE_NAME_$count="$RELEASE_NAME"
 
-              # Ajouter aux variables d'environnement pour GitHub Actions
-              echo "RELEASE_ID_$count=${!RELEASE_ID_$count}" >> $GITHUB_ENV
-              echo "RELEASE_NAME_$count=${!RELEASE_NAME_$count}" >> $GITHUB_ENV
-
-              count=$((count + 1))
             done <<< "$RELEASE_IDS_NAMES"
 
         - name: Download release assets from GitHub
