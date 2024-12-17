@@ -91,15 +91,12 @@ jobs:
               echo "RELEASE_NAME_$count=$RELEASE_NAME" >> $GITHUB_ENV
               count=$((count + 1))
             done <<< "$RELEASE_IDS_NAMES"
-            
-        - name: List all environment variables
-          run: |
-          env
 
         - name: Download release assets from GitHub
           id: download_assets
           if: ${{ env.SKIP_NEXT_STEP != 'true' }}
           run: |
+            env
             ASSETS_FOUND=false
             NUM_RELEASES=${{ env.NUM_RELEASES }}
             RELEASE_ID_0=${{ env.NUM_RELEASES_0 }}
