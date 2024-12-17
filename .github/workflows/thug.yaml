@@ -109,25 +109,30 @@ jobs:
             git clone https://oauth2:${{ secrets.FORGE_TOKEN }}@forge.ird.fr/marbec/test_miroir_github.git
             cd test_miroir_github
 
-            # Définir les répertoires source et cible avec l'ID et le nom de la release
+            # Définir les répertoires source et cible
             SOURCE_DIR="../release-assets/${{ env.RELEASE_ID }}_${{ env.RELEASE_NAME }}"
-            TARGET_DIR="release-assets/${{ env.RELEASE_ID }}_${{ env.RELEASE_NAME }}"
+            TARGET_BASE_DIR="release-assets"
+            TARGET_DIR="${TARGET_BASE_DIR}/${{ env.RELEASE_ID }}_${{ env.RELEASE_NAME }}"
 
             # Vérifier si le répertoire source existe
             if [ -d "$SOURCE_DIR" ]; then
-              # Créer le répertoire cible spécifique pour cette release
+              # Créer un sous-répertoire pour la release spécifique
               mkdir -p "$TARGET_DIR"
 
-              # Fusionner les fichiers dans le répertoire spécifique sans toucher aux anciens
-              rsync -av "$SOURCE_DIR/" "$TARGET_DIR/"
+              # Copier les fichiers de la release dans son sous-répertoire dédié
+              echo "Copying assets for release ID: ${{ env.RELEASE_ID }}, Name: ${{ env.RELEASE_NAME }}"
+              cp -r "$SOURCE_DIR"/* "$TARGET_DIR/"
 
-              # Ajouter et committer les changements uniquement si des fichiers ont été ajoutés ou modifiés
-              git add "$TARGET_DIR"
+              # Ajouter les fichiers dans Git sans toucher aux autres releases
+              git add "$TARGET_BASE_DIR"
+
+              # Vérifier s'il y a des modifications
               if git diff --cached --quiet; then
-                echo "No changes to commit."
+                echo "No changes to commit for this release."
               else
-                git commit -m "Add/update assets for release: ${{ env.RELEASE_NAME }} (ID: ${{ env.RELEASE_ID }})"
+                git commit -m "Add assets for release: ${{ env.RELEASE_NAME }} (ID: ${{ env.RELEASE_ID }})"
                 git push origin main
+                echo "Assets committed and pushed successfully."
               fi
             else
               echo "Error: Source directory '$SOURCE_DIR' does not exist."
