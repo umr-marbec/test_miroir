@@ -89,6 +89,7 @@ jobs:
               # Récupérer l'ID et le nom de la release
               RELEASE_ID=$(echo "$RELEASE_IDS" | sed -n "${num_release}p")
               RELEASE_NAME=$(echo "$RELEASE_NAMES" | sed -n "${num_release}p")
+              echo "Work on release id: $RELEASE_ID"
         
               # Télécharger les assets de la release
               ASSETS=$(curl -s \
